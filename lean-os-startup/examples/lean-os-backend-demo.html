@@ -1,0 +1,410 @@
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>Faro · Lean OS</title>
+<style>
+:root{--bg:#F4F4F7;--surface:#FFFFFF;--ink:#14171F;--muted:#6A7280;--line:#E7E7EE;
+--accent:#4F46E5;--accent2:#7C6BF0;--accent-bg:#ECEBFD;
+--ok:#0E7A52;--ok-bg:#E4F5EC;--warn:#9A6700;--warn-bg:#FBF1D8;--crit:#C0362C;--crit-bg:#FBE7E4;--tbd:#64748B;--tbd-bg:#EEF1F5;
+--font-sans:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;--r-card:18px;--r-chip:999px;
+--shadow:0 1px 2px rgba(20,23,31,.04),0 10px 30px -16px rgba(20,23,31,.18);--shadow-sm:0 1px 2px rgba(20,23,31,.05);}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1200px 480px at 100% -10%,var(--accent-bg),transparent 60%),var(--bg);color:var(--ink);font-family:var(--font-sans);font-size:14px;line-height:1.5}
+.wrap{max-width:1320px;margin:0 auto;padding:0 22px}a{color:inherit;text-decoration:none}
+.serif{font-weight:800;letter-spacing:-.03em}.muted{color:var(--muted)}
+.label{display:inline-block;font-size:10.5px;text-transform:uppercase;letter-spacing:.14em;color:var(--accent);font-weight:700;background:var(--accent-bg);padding:3px 9px;border-radius:var(--r-chip)}
+.badge{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2));padding:3px 9px;border-radius:var(--r-chip)}
+header{background:rgba(255,255,255,.72);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30}
+.head-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}.brand b{font-size:19px;letter-spacing:-.02em}
+.nav{display:flex;gap:3px;flex-wrap:wrap}.tab{padding:7px 13px;border-radius:11px;font-size:13px;color:var(--muted);font-weight:500}
+.tab:hover{background:var(--accent-bg);color:var(--accent)}.tab.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:var(--shadow-sm)}.updated{font-size:11px;color:var(--muted)}
+section{background:linear-gradient(180deg,#FFFFFF,#FBFBFE);border:1px solid var(--line);border-radius:22px;padding:20px 22px 24px;margin:16px 0;box-shadow:var(--shadow)}
+.sec-head{margin-bottom:16px;padding-left:14px;border-left:4px solid var(--accent)}
+.sec-head h2{margin:6px 0 0;font-size:23px;text-transform:uppercase;letter-spacing:.015em}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}@media(max-width:860px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{position:relative;border-radius:var(--r-card);padding:18px;border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+.kpi::after{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--accent)}
+.kpi .num{font-size:38px;font-weight:800;letter-spacing:-.03em;line-height:1;margin:10px 0 6px}.kpi .sub{font-size:12px;color:var(--muted)}
+.kpi.accent{background:linear-gradient(155deg,var(--accent-bg),#fff 72%)}.kpi.accent::after{background:var(--accent)}.kpi.accent .num{color:var(--accent)}
+.kpi.ok{background:linear-gradient(155deg,var(--ok-bg),#fff 72%)}.kpi.ok::after{background:var(--ok)}.kpi.ok .num{color:var(--ok)}
+.kpi.warn{background:linear-gradient(155deg,var(--warn-bg),#fff 72%)}.kpi.warn::after{background:var(--warn)}.kpi.warn .num{color:var(--warn)}
+.kpi.crit{background:linear-gradient(155deg,var(--crit-bg),#fff 72%)}.kpi.crit::after{background:var(--crit)}.kpi.crit .num{color:var(--crit)}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}.dot.ok{background:var(--ok)}.dot.warn{background:var(--warn)}.dot.crit{background:var(--crit)}.dot.tbd{background:var(--tbd)}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:860px){.g2,.g3{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);padding:18px;box-shadow:var(--shadow)}.card h3{margin:0 0 12px;font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--ink)}
+.card.accent{background:linear-gradient(160deg,var(--accent-bg),#fff 80%);border-color:#dcd9fb}
+.card.ok{background:linear-gradient(160deg,var(--ok-bg),#fff 80%);border-color:#c9e9d7}
+.card.warn{background:linear-gradient(160deg,var(--warn-bg),#fff 80%);border-color:#ecdaa6}
+.card.crit{background:linear-gradient(160deg,var(--crit-bg),#fff 80%);border-color:#f0c8c2}
+.chip{display:inline-block;padding:3px 11px;border-radius:var(--r-chip);font-size:11px;font-weight:700}
+.chip.ok{background:var(--ok-bg);color:var(--ok)}.chip.warn{background:var(--warn-bg);color:var(--warn)}.chip.crit{background:var(--crit-bg);color:var(--crit)}.chip.tbd{background:var(--tbd-bg);color:var(--tbd)}
+.chip.rev{background:var(--warn-bg);color:var(--warn)}.chip.conf{background:var(--ok-bg);color:var(--ok);box-shadow:inset 0 0 0 1px var(--ok)}
+.sprint{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;border-radius:var(--r-card);padding:18px;background:linear-gradient(135deg,var(--accent-bg),#fff 85%);border:1px solid #dcd9fb;box-shadow:var(--shadow);margin-bottom:14px}
+.sprint .goal{font-size:19px;font-weight:800;letter-spacing:-.02em}.sprint .meta{font-size:12px;color:var(--muted)}
+.tasklink{color:var(--accent);font-weight:600;text-decoration:underline}
+.hyp{border:1px solid var(--line);border-radius:var(--r-card);padding:15px;margin-bottom:11px;box-shadow:var(--shadow-sm);background:var(--surface)}
+.hyp.t-test{background:linear-gradient(160deg,var(--warn-bg),#fff 82%)}.hyp.t-ok{background:linear-gradient(160deg,var(--ok-bg),#fff 82%)}.hyp.t-kill{background:linear-gradient(160deg,var(--crit-bg),#fff 82%)}
+.hyp .top{display:flex;justify-content:space-between;gap:10px;align-items:start}.hyp h4{margin:0;font-size:15px;font-weight:700}
+.killline{margin-top:9px;background:#fff;border-left:3px solid var(--crit);color:var(--crit);padding:7px 11px;font-size:11px;border-radius:0 8px 8px 0}
+.okline{margin-top:9px;background:#fff;border-left:3px solid var(--ok);color:var(--ok);padding:7px 11px;font-size:11px;border-radius:0 8px 8px 0}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line)}
+th{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}tbody tr:hover{background:var(--accent-bg)}
+.cohort td{text-align:center}.cohort td:first-child{text-align:left;font-weight:700}
+.bar{height:9px;border-radius:6px;background:var(--bg);overflow:hidden}.bar>span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.vanity{color:var(--muted);font-size:12px;margin-top:10px}footer{padding:24px 0;color:var(--muted);font-size:12px}
+.demo{background:linear-gradient(135deg,var(--accent-bg),#fff 85%);color:var(--accent);border:1px solid #dcd9fb;border-radius:var(--r-card);padding:11px 15px;font-size:12px;margin:16px 0 0;box-shadow:var(--shadow-sm)}
+.resume{background:linear-gradient(120deg,#171A26 0%,#23204A 55%,#3A2E73 100%);color:#fff;border-radius:var(--r-card);padding:18px;margin:18px 0;display:flex;gap:18px;align-items:center;flex-wrap:wrap;box-shadow:var(--shadow)}
+.resume .rtitle{font-weight:800;font-size:17px}.resume .rsub{font-size:11px;opacity:.7}
+.rstats{display:flex;gap:20px;margin-left:auto}.rstat .rk{font-size:10px;text-transform:uppercase;letter-spacing:.12em;opacity:.7}
+.rstat .rv{font-size:24px;font-weight:800;line-height:1}.rstat .rv.alert{color:#FF9A8B}.rstat .rv.warn{color:#FFD27A}
+.rbtn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:0;border-radius:11px;padding:11px 15px;font-weight:700;cursor:pointer;font-size:13px;box-shadow:0 6px 18px -8px var(--accent)}
+.rbtn.link{background:rgba(255,255,255,.10);box-shadow:none;border:1px solid rgba(255,255,255,.22)}
+.rlist{width:100%;border-top:1px solid rgba(255,255,255,.14);margin-top:8px;padding-top:11px;font-size:12px}
+.rlist .ri{padding:3px 0;opacity:.92}.rpill{font-size:10px;padding:1px 7px;border-radius:999px;background:rgba(255,255,255,.16);margin-right:7px}
+.rpill.p0{background:#FF9A8B;color:#3a0d08}.rpill.over{background:#FFD27A;color:#3a2a06}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 17px;border-radius:11px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none}.toast.show{opacity:1}
+.filters{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}.filt{padding:5px 12px;border:1px solid var(--line);border-radius:999px;font-size:12px;background:var(--surface);cursor:pointer;font-weight:600}.filt.on{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
+.catpill{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--accent-bg);color:var(--accent)}
+.toggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:#fff}
+.tg{border:0;background:transparent;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;color:var(--muted)}
+.tg.on.rev{background:var(--warn-bg);color:var(--warn)}.tg.on.conf{background:var(--ok-bg);color:var(--ok);box-shadow:inset 0 0 0 1px var(--ok)}
+.rev-go{margin-top:7px;display:inline-block;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:0;border-radius:8px;padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer}
+.byname{font-weight:600}
+.hint{font-size:11px;color:var(--muted);margin:2px 0 12px}
+/* ── APP SHELL (vero backend: sidebar + topbar + viste) ── */
+.app{display:flex;min-height:100vh}
+.sidebar{width:238px;flex:none;position:sticky;top:0;height:100vh;background:linear-gradient(180deg,#161826,#221F46 55%,#2E2861);color:#fff;display:flex;flex-direction:column;padding:18px 14px;gap:5px;box-shadow:2px 0 30px -18px rgba(0,0,0,.6);z-index:20}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:17px;letter-spacing:-.02em;padding:4px 8px 14px}
+.logo .sq{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:inline-flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 6px 16px -6px var(--accent)}
+.logo small{display:block;font-size:9.5px;font-weight:700;opacity:.6;letter-spacing:.16em;text-transform:uppercase}
+.nav{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:11px;color:#cdd2e6;font-weight:600;font-size:13.5px;cursor:pointer;border:0;background:transparent;width:100%;text-align:left}
+.nav .ic{font-size:15px;width:20px;text-align:center}
+.nav:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 10px 22px -12px var(--accent)}
+.side-foot{margin-top:auto;font-size:12px;opacity:.78;padding:12px 8px 4px;border-top:1px solid rgba(255,255,255,.12)}
+.side-foot b{color:#fff}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{position:sticky;top:0;z-index:15;background:rgba(255,255,255,.74);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 26px}
+.crumb{font-weight:800;font-size:19px;letter-spacing:-.02em}.crumb small{display:block;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.03em}
+.tb-right{display:flex;align-items:center;gap:12px}
+.search{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 12px;font-size:13px;width:210px}
+.pill-date{font-size:12px;color:var(--muted)}
+.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:12px}
+.content{padding:8px 26px 44px;max-width:1240px;width:100%;margin:0 auto;flex:1}
+.view{animation:fade .28s ease}.view.hidden{display:none}
+@keyframes fade{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.menu-btn{display:none;border:0;background:transparent;font-size:20px;cursor:pointer}
+@media(max-width:820px){.sidebar{position:fixed;left:-260px;transition:left .22s}.sidebar.open{left:0}.search{display:none}.menu-btn{display:inline-block}}
+/* ── Document Viewer (slide-over) ── */
+.docopen{border:0;background:transparent;color:var(--accent);font-weight:700;cursor:pointer;text-align:left;font-size:13px;padding:0;text-decoration:underline;font-family:inherit}
+.docopen.mini{font-weight:600;font-size:12px}
+.docmodal{position:fixed;inset:0;background:rgba(15,17,25,.55);backdrop-filter:blur(3px);display:none;justify-content:flex-end;z-index:60}
+.docmodal.open{display:flex}
+.docpanel{width:min(780px,100%);background:var(--surface);height:100vh;overflow:auto;box-shadow:-24px 0 70px -34px rgba(0,0,0,.6);animation:slidein .26s ease}
+@keyframes slidein{from{transform:translateX(34px);opacity:.5}to{transform:none;opacity:1}}
+.dochead{position:sticky;top:0;background:linear-gradient(135deg,var(--accent-bg),#fff 88%);border-bottom:1px solid var(--line);padding:18px 24px;display:flex;justify-content:space-between;align-items:flex-start;gap:14px;z-index:2}
+.dochead h2{margin:0;font-size:20px;font-weight:800;letter-spacing:-.02em}
+.docmeta{font-size:12px;color:var(--muted);margin-top:6px}
+.docclose{border:0;background:var(--ink);color:#fff;border-radius:9px;width:32px;height:32px;cursor:pointer;font-size:15px;flex:none}
+.docactions{padding:0 24px;margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+.rbtn.ghost{background:#fff;color:var(--accent);box-shadow:none;border:1px solid var(--line)}
+.docbody{padding:18px 26px 70px;font-size:14px;line-height:1.65}
+.docbody h1{font-size:23px;letter-spacing:-.02em;margin:18px 0 8px}.docbody h2{font-size:18px;margin:20px 0 8px;text-transform:none;letter-spacing:0;color:var(--ink)}
+.docbody h3{font-size:15px;margin:16px 0 6px;text-transform:none;letter-spacing:0;color:var(--ink)}
+.docbody p{margin:8px 0}.docbody ul,.docbody ol{margin:8px 0;padding-left:22px}.docbody li{margin:3px 0}
+.docbody hr{border:0;border-top:1px solid var(--line);margin:16px 0}
+.docbody blockquote{margin:10px 0;padding:8px 14px;background:var(--accent-bg);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;color:var(--ink-soft,#333)}
+.docbody table{margin:10px 0;font-size:12.5px}.docbody code{background:var(--bg);padding:1px 6px;border-radius:6px;font-size:12.5px}
+</style></head><body>
+<div class="app">
+  <aside class="sidebar" id="sb">
+    <div class="logo"><span class="sq">◆</span><div>Faro<small>Lean OS</small></div></div>
+    <button class="nav active" data-view="cockpit" data-label="Cockpit"><span class="ic">📊</span>Cockpit</button><button class="nav" data-view="ipotesi" data-label="Ipotesi"><span class="ic">🧪</span>Ipotesi</button><button class="nav" data-view="metriche" data-label="Metriche"><span class="ic">📈</span>Metriche</button><button class="nav" data-view="runway" data-label="Runway"><span class="ic">💰</span>Runway</button><button class="nav" data-view="cadenza" data-label="Cadenza"><span class="ic">🗓️</span>Cadenza</button><button class="nav" data-view="deliverables" data-label="Deliverables"><span class="ic">📦</span>Deliverables</button>
+    <div class="side-foot">Demo · startup fittizia<br><b>Marta</b> · founder</div>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="menu-btn" id="mb">☰</button>
+        <div class="crumb"><span id="crumbT">Cockpit</span><small id="crumbS">A colpo d'occhio</small></div>
+      </div>
+      <div class="tb-right"><input class="search" placeholder="Cerca deliverable, ipotesi…"><span class="pill-date" id="td">—</span><span class="avatar">M</span></div>
+    </div>
+    <div class="content"><div class="view" id="v-cockpit">
+<div class="resume" id="resume">
+<div><div class="rtitle">📍 Riprendi Faro</div><div class="rsub" id="rsub">Daily Briefing · agg. 03 giu 2026</div></div>
+<div class="rstats">
+<div class="rstat"><div class="rk">Focus / P0</div><div class="rv alert">2</div></div>
+<div class="rstat"><div class="rk">Da rivedere</div><div class="rv warn">1</div></div>
+<div class="rstat"><div class="rk">In scadenza</div><div class="rv alert">1</div></div></div>
+<div style="display:flex;gap:8px;align-items:center">
+<button class="rbtn" id="rResume" type="button">▶ Riprendi da dove hai lasciato</button>
+<button class="rbtn link" id="rCopy" type="button">📋 Copia prompt</button></div>
+<div class="rlist">
+<div class="ri"><span class="rpill p0">p0</span>Bozze precaricate — esperimento attivazione (primo dato 10 giu)</div>
+<div class="ri"><span class="rpill">p1</span>Copy onboarding — in attesa di conferma</div>
+<div class="ri"><span class="rpill over">scaduto</span>Setup test canale community</div></div>
+</div>
+<section><div class="sec-head"><span class="label">01 · A colpo d'occhio</span><h2 class="serif">Cockpit</h2></div>
+<div class="kpis">
+<div class="kpi warn"><div class="label">North Star Metric</div><div class="num">70%</div><div class="sub">Dev che rispondono · 2ª sett · soglia ≥75%</div></div>
+<div class="kpi warn"><div class="label">Runway</div><div class="num">6m</div><div class="sub">3 pivot residui · allarme a 3 mesi</div></div>
+<div class="kpi ok"><div class="label">Esperimento attivo</div><div class="num">6g</div><div class="sub">Riduzione attrito attivazione · dato 10 giu</div></div>
+<div class="kpi warn"><div class="label">Ledger ipotesi</div><div class="num">1/6</div><div class="sub">4 aperte · 1 smentita</div></div>
+</div></section>
+<section><div class="grid g3">
+<div class="card accent"><h3>Focus della settimana</h3><ul style="margin:0;padding-left:18px">
+<li>Esperimento attivazione: bozze precaricate al 1º accesso</li><li>Intervistare i 6 dev che non hanno inviato</li><li>Aprire test canale community (post-channel pivot)</li></ul></div>
+<div class="card crit"><h3>Alert</h3>
+<p><span class="chip crit">Kill-line</span> CAC paid €54 &gt; €35 → canale sospeso</p>
+<p><span class="chip warn">Decisione</span> Prezzo canone: freemium vs €19/m · 06 giu</p>
+<p><span class="chip warn">Rischio</span> Inference cost per risposta da monitorare</p></div>
+<div class="card warn"><h3>Prossima decisione</h3><p class="muted">Pivot-or-persevere · 17 giu</p>
+<p>Se l'attivazione non supera il 75%, valutare un onboarding assistito 1:1 prima di scartare l'ipotesi.</p></div>
+</div></section>
+<script>
+(function(){
+ var P=["Riprendi Faro da dove ho lasciato.","","Stato (03 giu 2026): Focus/P0 2 · Da rivedere 1 · In scadenza 1","",
+ "Da rivedere ora:","- Bozze precaricate — esperimento attivazione","- Copy onboarding (da confermare)","- Setup canale community (SCADUTO)","",
+ "Cosa fai (protocollo resume):",
+ "1. Leggi la fonte di verità: task list, deliverable e ultimo End-of-Day Check.",
+ "2. Ritrova il filo: individua le ultime chat su Faro e riassumi in 2-3 righe dove eravamo.",
+ "3. Guarda piano e scadenze: elenca cosa è in scadenza/overdue e cosa è Da rivedere.",
+ "4. Proponi il prossimo passo concreto (priorità più alta sbloccata). Se auto-eseguibile parti; altrimenti domanda binaria con default."].join("\n");
+ function toast(m){var t=document.createElement('div');t.className='toast show';t.textContent=m;document.body.appendChild(t);setTimeout(function(){t.remove();},2600);}
+ function go(send){ if(send&&typeof sendPrompt==='function'){sendPrompt(P);return;} if(send&&window.cowork&&window.cowork.sendPrompt){window.cowork.sendPrompt(P);return;}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(P).then(function(){toast('Prompt copiato: incollalo in chat');});}else{toast('Vedi console');console.log(P);} }
+ var a=document.getElementById('rResume'),b=document.getElementById('rCopy');
+ if(a)a.addEventListener('click',function(){go(true);}); if(b)b.addEventListener('click',function(){go(false);});
+})();
+</script></div><div class="view hidden" id="v-ipotesi">
+<section><div class="sec-head"><div class="label">02 · Motore lean</div><h2 class="serif">Ipotesi & esperimenti</h2></div>
+<div class="hyp t-test"><div class="top"><h4>#1 Value — i dev rispondono se prepariamo le bozze</h4><span class="chip warn">In test</span></div>
+<div class="killline">KILL-LINE: &lt;75% dei dev attivati invia ≥1 risposta entro la 2ª settimana — attuale 70%, trend +</div></div>
+<div class="hyp"><div class="top"><h4>#2 Value — le risposte recuperano utenti / proteggono il rating</h4><span class="chip tbd">Aperta</span></div>
+<div class="killline">KILL-LINE: nessun effetto misurabile su rating/retention utenti dopo 3 coorti</div></div>
+<div class="hyp"><div class="top"><h4>#3 Value — i dev pagano un canone</h4><span class="chip tbd">Aperta</span></div>
+<div class="killline">KILL-LINE: &lt;20% dei dev attivi converte a pagamento all'offerta</div></div>
+<div class="hyp t-kill"><div class="top"><h4>#4 Growth — canale di acquisizione sotto CAC sostenibile</h4><span class="chip crit">Smentita (paid)</span></div>
+<div class="killline">SUPERATA: CAC ADS €54 &gt; €35 su 18 lead → paid sospeso, channel pivot verso community</div></div>
+<div class="hyp t-ok"><div class="top"><h4>#6 Tecnica — integrazione store fattibile a costo ragionevole</h4><span class="chip ok">Validata</span></div>
+<div class="okline">CONFERMATA: prototipo legge le recensioni via feed pubblico, costo trascurabile</div></div>
+</section>
+<section><div class="card"><h3>Esperimento in corso · scheda</h3>
+<table><tr><th>Campo</th><th>Valore</th></tr>
+<tr><td>Ipotesi</td><td>I dev inviano di più se le bozze sono precaricate al 1º accesso</td></tr>
+<tr><td>Tipo MVP</td><td>Concierge + onboarding precaricato</td></tr>
+<tr><td>Metrica / soglia</td><td>% invii 2ª settimana ≥ 75%</td></tr>
+<tr><td>Baseline</td><td>70% (coorte 1)</td></tr>
+<tr><td>Primo dato</td><td>10 giu 2026</td></tr></table></div></section></div><div class="view hidden" id="v-metriche">
+<section><div class="sec-head"><div class="label">03 · Innovation accounting</div><h2 class="serif">Metriche per coorte</h2></div>
+<div class="grid g2">
+<div class="card"><h3>Attivazione (invio ≥1 risposta, 2ª settimana)</h3>
+<table class="cohort"><thead><tr><th>Coorte</th><th>Attivati</th><th>Inviano</th><th>%</th></tr></thead><tbody>
+<tr><td>coorte 1 (19 mag)</td><td>20</td><td>14</td><td>70%</td></tr>
+<tr><td>coorte 2 (26 mag)</td><td>18</td><td>13</td><td>72%</td></tr>
+<tr><td>coorte 3 (02 giu)</td><td>22</td><td>17</td><td>77%</td></tr></tbody></table>
+<p class="muted" style="margin-top:8px">Baseline 0 → soglia 75% · coorte 3 supera la soglia: segnale che l'attrito di onboarding era il blocco.</p></div>
+<div class="card"><h3>Uso ripetuto settimanale (sticky)</h3>
+<table><tr><td>Coorte 1</td><td><div class="bar"><span style="width:22%"></span></div></td><td>22% <span class="dot warn"></span></td></tr><tr><td>Coorte 2</td><td><div class="bar"><span style="width:27%"></span></div></td><td>27% <span class="dot warn"></span></td></tr><tr><td>Coorte 3</td><td><div class="bar"><span style="width:31%"></span></div></td><td>31% <span class="dot ok"></span></td></tr></table>
+<p class="muted" style="margin-top:8px">Target 35%. Trend in miglioramento coorte dopo coorte → motore <b>sticky</b> candidato.</p></div>
+</div></section>
+<section><div class="grid g3">
+<div class="card accent"><h3>Motore di crescita</h3><p class="label">Sticky (dominante candidato)</p>
+<p style="margin-top:10px">Retention settimanale = leva. Coefficiente virale ("inviato con Faro") da attivare nel prossimo ciclo.</p></div>
+<div class="card crit"><h3>Economics acquisizione</h3><p style="font-size:30px;font-weight:800;color:var(--crit);margin:0">€54</p>
+<p class="sub">CAC canale paid vs soglia €35 → sospeso. LTV ancora da stimare (manca conversione a pagamento).</p></div>
+<div class="card"><h3>Da non guardare come successo</h3>
+<p class="vanity">Vanity: iscritti waitlist 640 · follower X 410 · visite sito 5.2k cumulate. Tenute fuori dagli indicatori: non guidano decisioni.</p></div>
+</div></section></div><div class="view hidden" id="v-runway">
+<section><div class="sec-head"><div class="label">04 · Sopravvivenza</div><h2 class="serif">Runway & capitale</h2></div>
+<div class="kpis">
+<div class="kpi accent"><div class="label">Cassa attuale</div><div class="num">€48k</div><div class="sub">al 03 giu 2026</div></div>
+<div class="kpi warn"><div class="label">Burn mensile</div><div class="num">€8k</div><div class="sub">inference + 2 founder lean + tool</div></div>
+<div class="kpi warn"><div class="label">Runway</div><div class="num">6m</div><div class="sub">cassa / burn</div></div>
+<div class="kpi warn"><div class="label">Pivot residui</div><div class="num">3</div><div class="sub">esperimenti possibili al ritmo attuale</div></div>
+</div></section>
+<section><div class="grid g2">
+<div class="card"><h3>Soglia di allarme</h3><p><span class="chip warn">Trigger</span> a 3 mesi di runway (≈ inizio set 2026) scatta la decisione raise/cut. Sotto i 4 mesi non si avviano nuovi impegni di spesa fissi.</p></div>
+<div class="card"><h3>Piano raise (bozza)</h3><table>
+<tr><th>Voce</th><th>Valore</th></tr>
+<tr><td>Quando</td><td>dopo prova attivazione &gt;75% + prime conversioni a pagamento</td></tr>
+<tr><td>Quanto</td><td>pre-seed €250-350k</td></tr>
+<tr><td>Per fare</td><td>build prodotto (da concierge a software) + canale community</td></tr>
+<tr><td>Runway post-raise</td><td>15-18 mesi</td></tr></table></div>
+</div></section></div><div class="view hidden" id="v-cadenza">
+<section><div class="sec-head"><div class="label">05 · Operatività</div><h2 class="serif">Sprint, ritmo & accountability</h2></div>
+<div class="sprint">
+<div><div class="label">Sprint 3 · 3-16 giu</div><div class="goal">Portare l'attivazione 2ª settimana sopra il 75%</div></div>
+<div class="meta">Giorno 4/10 · Review (pivot-or-persevere) 16 giu · DoD: esperimento con un dato</div>
+</div>
+<div class="grid g2">
+<div class="card accent"><h3>Daily Briefing · oggi</h3>
+<p class="muted">Sprint 3 · giorno 4/10 · NSM 70% (soglia 75%) · runway 6m / 3 pivot</p>
+<p><b>Focus oggi:</b> bozze precaricate al 1º accesso · 3 interviste dev</p>
+<p><span class="chip crit">Alert</span> CAC paid sopra kill-line (€54 &gt; €35)</p>
+<p><span class="chip rev">In attesa di te</span> conferma copy onboarding</p></div>
+<div class="card"><h3>End-of-Day Check</h3>
+<p><b>Chiuso oggi:</b> integrazione feed recensioni (Fatto)</p>
+<p><b>Dati nuovi:</b> +3 dev attivati · attivazione coorte 3 a 77%</p>
+<p><b>Da rivedere → in attesa conferma:</b> copy onboarding</p>
+<p><b>Carry-forward:</b> setup canale community → 11 giu</p>
+<p><b>Domani parti da:</b> lanciare bozze precaricate alla coorte 3</p></div>
+</div></section>
+<section><div class="sec-head"><div class="label">Backlog sprint</div><h2 class="serif">Task list</h2></div>
+<div class="card"><table>
+<thead><tr><th>Task</th><th>Owner</th><th>Scad.</th><th>Stato</th><th>Link</th></tr></thead><tbody>
+<tr><td>Bozze precaricate al 1º accesso (esperimento)</td><td>Marta</td><td>9 giu</td><td><span class="chip warn">In corso</span></td><td><a class="tasklink" href="../03_scheda-esperimento.md">esperimento</a></td></tr>
+<tr><td>Copy onboarding</td><td>Agente</td><td>6 giu</td><td><span class="chip rev">Da rivedere</span></td><td><a class="tasklink" href="#">bozza</a></td></tr>
+<tr><td>6 interviste ai dev non-invianti</td><td>Cofounder</td><td>9 giu</td><td><span class="chip warn">In corso</span></td><td><a class="tasklink" href="#">note</a></td></tr>
+<tr><td>Lista 22 dev coorte 3</td><td>Cofounder</td><td>5 giu</td><td><span class="chip conf">Confermato</span></td><td><a class="tasklink" href="#">foglio</a></td></tr>
+<tr><td>Integrazione feed recensioni</td><td>Cofounder</td><td>4 giu</td><td><span class="chip ok">Fatto</span></td><td><a class="tasklink" href="#">repo</a></td></tr>
+<tr><td>Setup test canale community</td><td>Marta</td><td>11 giu</td><td><span class="chip tbd">Da fare</span></td><td>—</td></tr>
+</tbody></table>
+<p class="muted" style="margin-top:8px">Stati: Da fare → In corso → <span class="chip rev">Da rivedere</span> (pronto, attende conferma del founder) → <span class="chip conf">Confermato</span> (approvato) → Fatto. Ogni task linka al suo artefatto.</p></div>
+</section>
+<section><div class="grid g2">
+<div class="card"><h3>Gate &amp; cadenza</h3><table>
+<tr><th>Momento</th><th>Quando</th></tr>
+<tr><td>Daily Briefing / EOD Check</td><td>ogni giorno (avvio / chiusura)</td></tr>
+<tr><td>Primo dato esperimento attivazione</td><td>10 giu</td></tr>
+<tr><td>Sprint Review = pivot-or-persevere</td><td>16 giu (fine sprint)</td></tr>
+<tr><td>Check soglia allarme runway</td><td>mensile</td></tr></table></div>
+<div class="card accent" style="display:flex;align-items:center;justify-content:center;text-align:center"><div>
+<div class="label">Definition of done dello sprint</div>
+<p style="font-size:15px;margin-top:8px">Un esperimento completato <b>con un dato</b>, non task spuntati.</p></div></div>
+</div></section>
+<section><div class="grid g2">
+<div class="card"><h3>Decision log</h3><table>
+<tr><th>Decisione</th><th>Data</th><th>Esito</th></tr>
+<tr><td>Persevera su ipotesi value #1</td><td>03 giu</td><td><span class="chip ok">Presa</span></td></tr>
+<tr><td>Sospendi canale paid ADS</td><td>03 giu</td><td><span class="chip ok">Presa</span></td></tr>
+<tr><td>Prezzo canone freemium vs €19/m</td><td>06 giu</td><td><span class="chip warn">Aperta</span></td></tr></table></div>
+<div class="card"><h3>Risk register</h3><table>
+<tr><th>Rischio</th><th>Stato</th></tr>
+<tr><td>Costo inference per risposta erode margine</td><td><span class="chip warn">Monitorato</span></td></tr>
+<tr><td>Dipendenza dal feed pubblico recensioni</td><td><span class="chip warn">Attivo</span></td></tr>
+<tr><td>Acquisizione senza canale validato</td><td><span class="chip crit">Critico</span></td></tr></table></div>
+</div></section></div><div class="view hidden" id="v-deliverables">
+<section><div class="sec-head"><div class="label">06 · Tutto ciò che è stato prodotto</div><h2 class="serif">Deliverables Hub</h2></div>
+<div class="filters" id="catF"></div><div class="filters" id="stF"></div>
+<div class="hint" id="hint">Clic sul nome (o su 📄 apri) per vedere il documento nel viewer integrato.</div>
+<div class="card"><table>
+<thead><tr><th>Deliverable</th><th>Categoria</th><th>Consegnato da</th><th>Stato</th><th>Data</th><th>Documento</th></tr></thead>
+<tbody id="delivBody"></tbody></table></div></section>
+<div class="toast" id="dtoast"></div>
+<script>
+(function(){
+ var DOCS={"Registro ipotesi": "# Registro ipotesi — Faro\n\n**Vision:** ogni sviluppatore indie tratta le recensioni come canale di relazione, non come rumore.\n**Cliente target:** studi indie 1-5 persone che pubblicano app consumer su App Store / Play Store, con ≥50 recensioni/mese e nessuno dedicato a gestirle.\n**Problema:** non c'è tempo di leggere e rispondere alle recensioni; le negative restano senza risposta, il rating cala, gli utenti scontenti abbandonano.\n\n## Le due ipotesi madri\n- **Value hypothesis** — gli indie dev rispondono regolarmente alle recensioni se le bozze sono quasi automatiche (riduzione attrito → cambio di comportamento).\n- **Growth hypothesis** — retention alta (il workflow diventa settimanale) + un canale sotto CAC sostenibile, candidato community indie / passaparola anziché paid.\n\n## Tabella ipotesi\nRischio = Incertezza (1-5) × Gravità-se-falsa (1-5).\n\n| # | Ipotesi (cosa diamo per vero) | Tipo | Incert. | Gravità | Rischio | Note |\n|---|---|---|:--:|:--:|:--:|---|\n| 1 | I dev rispondono davvero se prepariamo noi le bozze | value | 5 | 5 | **25** | Riskiest |\n| 2 | Le risposte recuperano utenti / proteggono il rating | value | 4 | 5 | 20 | Effetto da misurare a valle |\n| 3 | I dev pagano un canone per questo | value | 4 | 4 | 16 | Willingness-to-pay |\n| 4 | Esiste un canale di acquisizione sotto CAC sostenibile | growth | 4 | 4 | 16 | Paid sospetto, community candidata |\n| 5 | Il workflow diventa settimanale (retention/sticky) | growth | 3 | 4 | 12 | Base del motore di crescita |\n| 6 | Integrazione store fattibile a costo ragionevole | tecnica | 2 | 3 | 6 | Bassa priorità, nota tecnica |\n\n## Riskiest assumption\n> **#1 — Gli sviluppatori indie rispondono davvero alle recensioni se gliele prepariamo noi.**\n> Se è falsa, qualunque cosa costruiamo a valle (effetto sul rating, pagamento, crescita) è irrilevante. È quella da testare per prima, con il Concierge MVP.\n", "Lean Canvas": "# Lean Canvas — Faro\n\nOgni casella è un'ipotesi, non una certezza. ⚠️ = rischiosa, ancora da validare.\n\n**Problema**\n1. Le recensioni negative restano senza risposta (no tempo). ⚠️\n2. Il rating cala e abbassa la conversione dello store.\n3. Gli utenti scontenti abbandonano senza essere recuperati.\nAlternative attuali: ignorare · rispondere a mano saltuariamente · dashboard grezza dello store.\n\n**Segmenti di clienti**\n- Studi indie 1-5 persone con app consumer, ≥50 recensioni/mese.\n- Early adopter: dev solo-founder che vivono il rating come questione di sopravvivenza. ⚠️\n\n**Proposta di valore unica**\nRispondi a ogni recensione in un minuto: bozze pronte che recuperano utenti e proteggono il rating, senza assumere nessuno.\n\n**Soluzione**\n1. Bozze di risposta AI per ogni recensione, dal tono del brand.\n2. Coda settimanale \"da approvare e inviare\".\n3. Segnali sulle recensioni che indicano churn/bug.\n\n**Canali**\nCommunity indie dev (Reddit, Discord, podcast), passaparola, \"inviato con Faro\". ⚠️ (canale paid in dubbio)\n\n**Flussi di ricavo**\nCanone mensile per app/volume recensioni (freemium → a pagamento sopra soglia). ⚠️ willingness-to-pay da validare\n\n**Struttura dei costi**\nInference AI, dev prodotto, supporto early customers.\n\n**Metriche chiave**\nDev che rispondono a ≥1 recensione/2ª settimana (NSM) · retention settimanale per coorte · conversione a pagamento.\n\n**Unfair advantage**\nLibreria di pattern di risposta che migliora con ogni cliente; tono per-brand difficile da replicare a freddo.\n", "Scheda esperimento · attivazione": "# Scheda esperimento — Faro · \"I dev rispondono se prepariamo le bozze\"\n\nSi compila al contrario: prima cosa imparare, poi come misurare, poi cosa costruire.\n\n## 1. Learn — cosa vogliamo imparare\n**Ipotesi sotto test:** gli sviluppatori indie rispondono davvero alle recensioni se gliele prepariamo noi (riskiest assumption #1).\n**Se è VERA, ci aspettiamo di vedere:** la maggior parte dei dev attivati invia almeno una risposta nelle prime due settimane, senza che dobbiamo sollecitarli.\n**Se è FALSA, vedremo:** le bozze restano in coda, i dev non le inviano nemmeno se pronte.\n\n## 2. Measure — come lo misuriamo\n**Metrica actionable (NSM):** % di dev attivati che inviano ≥1 risposta tramite Faro entro la 2ª settimana.\n- Actionable? Sì — lega un'azione (drafting fornito) a un comportamento ripetibile (invio).\n- Accessible? Sì — \"persone che inviano\", non astrazioni.\n- Auditable? Sì — verificabile sugli invii reali nel foglio condiviso.\n\n**Baseline (oggi):** 0 (nessuno risponde).\n**Soglia di successo (decisa PRIMA):** ≥ 15 dei 20 attivati (75%).\n**Come leggiamo i dati:** cohort analysis per settimana di ingresso.\n\n## 3. Build — il minimo da costruire\n**Tipo di MVP:** Concierge (servizio a mano).\n**Cosa costruiamo (minimo):** reclutiamo 20 dev; il team Faro prepara a mano le bozze in un Google Sheet condiviso per le recensioni di ognuno; il dev approva e invia. Nessun software.\n**Cosa NON costruiamo ora:** integrazione API store, login, dashboard, billing, app — non servono per imparare se i dev inviano.\n**Data del primo dato atteso:** 10 giorni dall'avvio.\n\n## 4. Risultati (dopo l'esecuzione)\n**Cosa hanno fatto le persone:** su 20 dev coorte 1, **14** hanno inviato ≥1 risposta entro la 2ª settimana.\n**Metrica osservata vs soglia:** 70% vs 75% → **sotto soglia, ma vicino, con trend positivo** nelle coorti successive.\n**Validato / smentito / inconcludente:** parzialmente — segnale forte ma non oltre soglia; l'attrito di attivazione (setup del foglio) sembra il collo di bottiglia.\n**Cosa abbiamo imparato (validated learning):** i dev *vogliono* rispondere se la bozza è pronta; il blocco non è la motivazione ma l'onboarding iniziale.\n**Prossimo passo:** persevera — esperimento successivo che riduce l'attrito di attivazione (bozze precaricate al primo accesso) per superare il 75%.\n", "Pivot-or-persevere · 03 giu": "# Pivot or Persevere — Faro · meeting del 03 giu 2026\n\n## Stato\n**Ipotesi in test in questo ciclo:** i dev rispondono se prepariamo le bozze (riskiest #1).\n**Esperimenti fatti finora su questa ipotesi:** 1 (Concierge MVP, coorte 1 da 20 dev).\n**Le metriche si stanno muovendo verso il modello?** Sì, in miglioramento.\n**Evidenza dai dati (per coorte):** attivazione 70% vicino alla soglia 75%; uso ripetuto per coorte 22% → 27% → 31%; collo di bottiglia individuato nell'onboarding, non nella motivazione.\n\n## Decisione\n- [x] **PERSEVERA** — prossimo esperimento: bozze precaricate al primo accesso per ridurre l'attrito di attivazione e superare il 75%.\n- [ ] PIVOTA\n\n## Nota a margine — canale di acquisizione\nDecisione separata, non sull'ipotesi prodotto: il canale **paid ADS** ha sforato la kill-line (CAC €54 > €35 su 18 lead) ed è sospeso. Candidato **channel pivot** verso community indie / \"inviato con Faro\" — da testare come ipotesi growth nel ciclo successivo.\n\n**Tipo di pivot candidato (solo canale):** [x] Channel\n**Nuova ipotesi growth da testare dopo:** un canale community-led porta dev attivati sotto CAC €35.\n**Runway residua:** 6 mesi ≈ 3 esperimenti/pivot ancora possibili al ritmo attuale.\n"};
+ var DELIV=[
+  {t:"Registro ipotesi",cat:"Validazione",by:"Claude · coach",st:"Confermato",d:"03 giu",f:"../01_registro-ipotesi.md"},
+  {t:"Lean Canvas",cat:"Validazione",by:"Claude · coach",st:"Confermato",d:"03 giu",f:"../02_lean-canvas.md"},
+  {t:"Scheda esperimento · attivazione",cat:"Validazione",by:"Marta (founder)",st:"In corso",d:"03 giu",f:"../03_scheda-esperimento.md"},
+  {t:"Pivot-or-persevere · 03 giu",cat:"Validazione",by:"Claude · coach",st:"Confermato",d:"03 giu",f:"../05_pivot-or-persevere.md"},
+  {t:"Copy onboarding",cat:"Prodotto",by:"Agente Content",st:"Da rivedere",d:"03 giu",f:"#"},
+  {t:"Mini PRD app Faro",cat:"Prodotto",by:"Agente Dev-Brief",st:"Da rivedere",d:"02 giu",f:"#"},
+  {t:"Spec integrazione feed recensioni",cat:"Prodotto",by:"Cofounder",st:"Confermato",d:"04 giu",f:"#"},
+  {t:"Piano canale community",cat:"Marketing",by:"Agente Strategy",st:"Bloccato",d:"—",f:"#"},
+  {t:"Tracking attivazione/retention",cat:"Ops",by:"Agente Analyst",st:"Confermato",d:"02 giu",f:"#"},
+  {t:"Test canale paid ADS",cat:"Marketing",by:"Agente Ads",st:"Archiviato",d:"01 giu",f:"#"}
+ ];
+ var stCls={"Bozza":"tbd","In corso":"warn","Da rivedere":"rev","Confermato":"conf","Bloccato":"crit","Archiviato":"tbd"};
+ var fc="Tutte", fs="Attivi";
+ function cats(){var s=["Tutte"];DELIV.forEach(function(x){if(s.indexOf(x.cat)<0)s.push(x.cat);});return s;}
+ function sts(){return ["Attivi","Da rivedere","Confermato","Bozza","In corso","Bloccato","Archiviato","Tutti"];}
+ function match(x){if(fc!=='Tutte'&&x.cat!==fc)return false;
+  if(fs==='Tutti')return true; if(fs==='Attivi')return x.st!=='Confermato'&&x.st!=='Archiviato'; return x.st===fs;}
+ function chips(host,arr,getCur,set){document.getElementById(host).innerHTML=arr.map(function(v){return '<span class="filt'+(v===getCur()?' on':'')+'" data-v="'+v+'">'+v+'</span>';}).join('');
+  Array.prototype.forEach.call(document.querySelectorAll('#'+host+' .filt'),function(e){e.addEventListener('click',function(){set(e.getAttribute('data-v'));render();});});}
+ function dtoast(m){var t=document.getElementById('dtoast');t.textContent=m;t.className='toast show';setTimeout(function(){t.className='toast';},2600);}
+ function reviewPrompt(x){return ["Avvia la revisione del deliverable «"+x.t+"».","Consegnato da: "+x.by+(x.f&&x.f!=='#'?" · File: "+x.f:""),"",
+  "Cosa fai:","1. Apri il file e leggilo per intero.","2. Verifica contro l'obiettivo dello sprint e i criteri di qualità.",
+  "3. Elenca puntualmente cosa va corretto, oppure conferma che è ok.","4. Concludi proponendo: «Confermare» o «Rimandare con modifiche»."].join("\n");}
+ function launchReview(x){var p=reviewPrompt(x);
+  if(typeof sendPrompt==='function'){sendPrompt(p);return;} if(window.cowork&&window.cowork.sendPrompt){window.cowork.sendPrompt(p);return;}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(p).then(function(){dtoast('Prompt di revisione copiato: incollalo in chat');});}else{console.log(p);dtoast('Vedi console');}}
+
+ /* ── Document Viewer: renderer Markdown minimale (offline) ── */
+ function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+ function inl(t){t=esc(t);
+  t=t.replace(/`([^`]+)`/g,'<code>$1</code>');
+  t=t.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+  t=t.replace(/\*([^*]+)\*/g,'<em>$1</em>');
+  t=t.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+  return t;}
+ function md2html(src){var L=src.replace(/\r/g,'').split('\n'),o=[],i=0;
+  while(i<L.length){var l=L[i];
+   if(/^\s*$/.test(l)){i++;continue;}
+   if(/^#{1,6}\s/.test(l)){var n=l.match(/^#+/)[0].length;o.push('<h'+n+'>'+inl(l.replace(/^#+\s/,''))+'</h'+n+'>');i++;continue;}
+   if(/^---+\s*$/.test(l)){o.push('<hr>');i++;continue;}
+   if(/^>\s?/.test(l)){var q=[];while(i<L.length&&/^>\s?/.test(L[i])){q.push(inl(L[i].replace(/^>\s?/,'')));i++;}o.push('<blockquote>'+q.join('<br>')+'</blockquote>');continue;}
+   if(/^\s*\|.*\|\s*$/.test(l)&&i+1<L.length&&/^\s*\|?[\s:|-]+\|[\s:|-]*$/.test(L[i+1])){
+    var th=l.trim().replace(/^\||\|$/g,'').split('|').map(function(c){return '<th>'+inl(c.trim())+'</th>';}).join('');i+=2;var rs='';
+    while(i<L.length&&/^\s*\|.*\|\s*$/.test(L[i])){rs+='<tr>'+L[i].trim().replace(/^\||\|$/g,'').split('|').map(function(c){return '<td>'+inl(c.trim())+'</td>';}).join('')+'</tr>';i++;}
+    o.push('<table><thead><tr>'+th+'</tr></thead><tbody>'+rs+'</tbody></table>');continue;}
+   if(/^\s*([-*]|\d+\.)\s/.test(l)){var ord=/^\s*\d+\./.test(l),it='';while(i<L.length&&/^\s*([-*]|\d+\.)\s/.test(L[i])){it+='<li>'+inl(L[i].replace(/^\s*([-*]|\d+\.)\s/,''))+'</li>';i++;}o.push((ord?'<ol>':'<ul>')+it+(ord?'</ol>':'</ul>'));continue;}
+   var p=[];while(i<L.length&&!/^\s*$/.test(L[i])&&!/^#{1,6}\s/.test(L[i])&&!/^>/.test(L[i])&&!/^\s*([-*]|\d+\.)\s/.test(L[i])&&!/^\s*\|.*\|\s*$/.test(L[i])&&!/^---+\s*$/.test(L[i])){p.push(inl(L[i]));i++;}
+   o.push('<p>'+p.join(' ')+'</p>');}
+  return o.join('\n');}
+ function closeDoc(){var m=document.getElementById('docModal');if(m)m.classList.remove('open');}
+ function openDoc(i){var x=DELIV[i];
+  document.getElementById('docTitle').textContent=x.t;
+  document.getElementById('docMeta').innerHTML='<span class="catpill">'+x.cat+'</span> · consegnato da <b>'+x.by+'</b> · <span class="chip '+(stCls[x.st]||'tbd')+'">'+x.st+'</span> · '+x.d;
+  var c=DOCS[x.t];
+  document.getElementById('docBody').innerHTML=c?md2html(c):'<p class="muted">Documento non incluso in questa demo. Nel backend reale qui vedi il contenuto di '+(x.f&&x.f!=='#'?'<code>'+x.f+'</code>':'questo file')+'.</p>';
+  var act=document.getElementById('docActions');
+  act.innerHTML=(x.st==='Da rivedere')?'<button class="rbtn" data-rev="'+i+'">▶ Lancia revisione</button> <button class="rbtn ghost" data-conf="'+i+'">✓ Conferma</button>':'';
+  act.querySelectorAll('[data-rev]').forEach(function(b){b.addEventListener('click',function(){launchReview(DELIV[+b.getAttribute('data-rev')]);});});
+  act.querySelectorAll('[data-conf]').forEach(function(b){b.addEventListener('click',function(){var k=+b.getAttribute('data-conf');DELIV[k].st='Confermato';render();openDoc(k);dtoast('Confermato');});});
+  document.getElementById('docModal').classList.add('open');}
+ (function bindModal(){var dm=document.getElementById('docModal');if(dm)dm.addEventListener('click',function(e){if(e.target===dm)closeDoc();});
+  var dc=document.getElementById('docClose');if(dc)dc.addEventListener('click',closeDoc);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeDoc();});})();
+
+ function statusCell(x,i){
+  if(x.st==='Da rivedere'||x.st==='Confermato'){
+   return '<div class="toggle"><button class="tg rev'+(x.st==='Da rivedere'?' on':'')+'" data-i="'+i+'" data-to="Da rivedere">Da rivedere</button>'+
+          '<button class="tg conf'+(x.st==='Confermato'?' on':'')+'" data-i="'+i+'" data-to="Confermato">Confermato</button></div>'+
+          (x.st==='Da rivedere'?'<div><button class="rev-go" data-i="'+i+'">▶ Lancia revisione</button></div>':'');
+  }
+  return '<span class="chip '+(stCls[x.st]||'tbd')+'">'+x.st+'</span>';
+ }
+ function render(){
+  chips('catF',cats(),function(){return fc;},function(v){fc=v;});chips('stF',sts(),function(){return fs;},function(v){fs=v;});
+  var conf=DELIV.filter(function(x){return x.st==='Confermato';}).length;
+  document.getElementById('hint').textContent = fs==='Attivi'
+   ? ('Vista «Attivi»: '+conf+' confermati nascosti (tab Confermato). Clic sul nome per aprire il documento.') : 'Clic sul nome per aprire il documento nel viewer.';
+  var rows=[];DELIV.forEach(function(x,i){if(match(x))rows.push({x:x,i:i});});
+  document.getElementById('delivBody').innerHTML=rows.map(function(r){var x=r.x;
+   return '<tr><td><button class="docopen" data-i="'+r.i+'">'+x.t+'</button></td><td><span class="catpill">'+x.cat+'</span></td><td class="byname">'+x.by+'</td><td>'+statusCell(x,r.i)+'</td><td>'+x.d+'</td><td><button class="docopen mini" data-i="'+r.i+'">📄 apri</button></td></tr>';
+  }).join('') || '<tr><td colspan="6" class="muted" style="text-align:center;padding:18px">Nessun deliverable in questa vista.</td></tr>';
+  Array.prototype.forEach.call(document.querySelectorAll('.tg'),function(b){b.addEventListener('click',function(){DELIV[+b.getAttribute('data-i')].st=b.getAttribute('data-to');render();});});
+  Array.prototype.forEach.call(document.querySelectorAll('.rev-go'),function(b){b.addEventListener('click',function(){launchReview(DELIV[+b.getAttribute('data-i')]);});});
+  Array.prototype.forEach.call(document.querySelectorAll('.docopen'),function(b){b.addEventListener('click',function(){openDoc(+b.getAttribute('data-i'));});});
+ }
+ render();
+})();
+</script></div></div>
+  </div>
+</div>
+<div class="docmodal" id="docModal">
+  <div class="docpanel">
+    <div class="dochead"><div><h2 id="docTitle">—</h2><div class="docmeta" id="docMeta"></div></div><button class="docclose" id="docClose">✕</button></div>
+    <div class="docactions" id="docActions"></div>
+    <div class="docbody" id="docBody"></div>
+  </div>
+</div>
+<script>
+  document.getElementById('td').textContent=new Date().toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'});
+  var SUB={"cockpit":"A colpo d'occhio","ipotesi":"Motore lean","metriche":"Innovation accounting","runway":"Sopravvivenza","cadenza":"Sprint & operatività","deliverables":"Tutto il prodotto"};
+  document.querySelectorAll('.nav').forEach(function(n){n.addEventListener('click',function(){
+    var v=n.getAttribute('data-view');
+    document.querySelectorAll('.view').forEach(function(x){x.classList.add('hidden');});
+    var t=document.getElementById('v-'+v); if(t)t.classList.remove('hidden');
+    document.querySelectorAll('.nav').forEach(function(x){x.classList.remove('active');});n.classList.add('active');
+    document.getElementById('crumbT').textContent=n.getAttribute('data-label');
+    document.getElementById('crumbS').textContent=SUB[v]||'';
+    document.getElementById('sb').classList.remove('open');window.scrollTo(0,0);
+  });});
+  var mb=document.getElementById('mb');if(mb)mb.addEventListener('click',function(){document.getElementById('sb').classList.toggle('open');});
+</script></body></html>
