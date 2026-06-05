@@ -43,8 +43,6 @@ Quando ci sono dati da presidiare, costruisce un **vero backend a pagina singola
 - **Cadenza** — Sprint, Daily Briefing, End-of-Day Check, Task list (stati *Da rivedere* / *Confermato* + link).
 - **Deliverables Hub** — tutto il prodotto con *Consegnato da*, toggle Da rivedere⇄Confermato, *▶ Lancia revisione*.
 
-Dettaglio completo nel [README della skill](plugins/lancio-startup-lean/skills/lancio-startup-lean/README.md).
-
 ---
 
 ## Struttura della repository
