@@ -70,7 +70,10 @@ Apri `examples/lean-os-backend-demo.html` nel browser: è il backend "Lean OS" p
 
 ## Licenza
 
-[MIT](LICENSE) © 2026 Fabio Alessi
+(LICENSE) ©2026 Fabio Alessi
+
+
+//////////////////////////////////////////////////////////////////////////////
 
 
 *** ENG ***
