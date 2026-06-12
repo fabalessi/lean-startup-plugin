@@ -1,4 +1,4 @@
-# Lancio Startup Lean — Lean OS for founders
+# Lean OS for founders - Lancio Startup Lean
 
 🇬🇧 English · [🇮🇹 Italiano](#-italiano)
 
